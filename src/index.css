@@ -109,3 +109,22 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+body {
+  color: #0f172a;
+  opacity: 1;
+}
+
+h1, h2, h3, h4, h5, h6, p, span, label, div, a, button {
+  color: inherit;
+  opacity: 1;
+}
+
+input, select, textarea {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
