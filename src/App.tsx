@@ -64,15 +64,26 @@ type UserProfile = {
 };
 
 function Card({ children, dark = false, style = {} }: { children: React.ReactNode; dark?: boolean; style?: React.CSSProperties }) {
+  const [hovered, setHovered] = React.useState(false);
+
   return (
     <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         background: dark ? '#0f172a' : '#ffffff',
         color: dark ? '#ffffff' : '#0f172a',
         borderRadius: 28,
         padding: 24,
         border: dark ? 'none' : '1px solid #e8eef5',
-        boxShadow: dark ? 'none' : '0 20px 50px rgba(15,23,42,0.08)',
+        boxShadow: dark
+          ? 'none'
+          : hovered
+            ? '0 30px 60px rgba(15,23,42,0.12)'
+            : '0 20px 50px rgba(15,23,42,0.08)',
+        transform: hovered ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)',
+        transition: 'all 0.25s ease',
+        cursor: 'default',
         ...style,
       }}
     >
@@ -221,6 +232,7 @@ export default function ShipenFullPreview() {
   const [banner, setBanner] = useState('');
   const [requests, setRequests] = useState<TransportRequest[]>([]);
   const [routes, setRoutes] = useState<FreeRoute[]>([]);
+  const [search, setSearch] = useState('');
   const [registerName, setRegisterName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
@@ -351,6 +363,14 @@ export default function ShipenFullPreview() {
   };
 
   const matchedRequestCount = requests.filter((r: TransportRequest) => getMatchesForRequest(r).length > 0).length;
+  const filteredRequests = requests.filter((r: TransportRequest) =>
+  `${r.from} ${r.to} ${r.item}`.toLowerCase().includes(search.toLowerCase())
+);
+
+const filteredRoutes = routes.filter((r: FreeRoute) =>
+  `${r.from} ${r.to} ${r.vehicleType}`.toLowerCase().includes(search.toLowerCase())
+);
+  
 
   const createAccount = async () => {
     if (!registerName.trim() || !registerEmail.trim() || !registerPassword.trim()) {
@@ -565,8 +585,160 @@ export default function ShipenFullPreview() {
 
             <section style={{ marginBottom: 52 }}><SectionTitle title={tx({ de: 'So funktioniert Shipen', en: 'How Shipen works', tr: 'Shipen nasıl çalışır', pl: 'Jak działa Shipen', nl: 'Hoe Shipen werkt', fr: 'Comment fonctionne Shipen' })} text={tx({ de: 'Die große Startseite braucht wieder klare Schritte, damit Nutzer sofort verstehen, was sie tun können.', en: 'The larger homepage needs clear steps again so users immediately understand what they can do.', tr: 'Büyük ana sayfa, kullanıcıların ne yapabileceğini hemen anlaması için tekrar net adımlar gerektirir.', pl: 'Duża strona główna znów potrzebuje jasnych kroków, aby użytkownicy od razu wiedzieli, co mogą zrobić.', nl: 'De grote homepage heeft weer duidelijke stappen nodig zodat gebruikers meteen begrijpen wat ze kunnen doen.', fr: 'La grande page d’accueil a de nouveau besoin d’étapes claires pour que les utilisateurs comprennent immédiatement quoi faire.' })} /><div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: 16 }}><Card><div style={{ fontSize: 42, fontWeight: 800, color: '#F97316' }}>1</div><div style={{ fontWeight: 800, marginTop: 8 }}>{tx({ de: 'Anfrage oder Route erstellen', en: 'Create request or route', tr: 'Talep veya rota oluştur', pl: 'Utwórz zlecenie lub trasę', nl: 'Maak aanvraag of route', fr: 'Créer une demande ou un trajet' })}</div></Card><Card><div style={{ fontSize: 42, fontWeight: 800, color: '#F97316' }}>2</div><div style={{ fontWeight: 800, marginTop: 8 }}>{tx({ de: 'Passende Vorschläge sehen', en: 'See matching suggestions', tr: 'Uygun önerileri gör', pl: 'Zobacz dopasowane propozycje', nl: 'Bekijk passende voorstellen', fr: 'Voir les correspondances' })}</div></Card><Card><div style={{ fontSize: 42, fontWeight: 800, color: '#F97316' }}>3</div><div style={{ fontWeight: 800, marginTop: 8 }}>{tx({ de: 'Im Dashboard verwalten', en: 'Manage it in dashboard', tr: 'Panelde yönet', pl: 'Zarządzaj w panelu', nl: 'Beheer in dashboard', fr: 'Gérer dans le tableau de bord' })}</div></Card></div></section>
 
-            <section style={{ marginBottom: 64 }}><SectionTitle title={tx({ de: 'Live-Einträge auf der Plattform', en: 'Live entries on the platform', tr: 'Platformdaki canlı kayıtlar', pl: 'Wpisy na żywo na platformie', nl: 'Live items op het platform', fr: 'Entrées en direct sur la plateforme' })} text={tx({ de: 'Hier sieht die Seite wieder lebendig aus, statt nur kurz und technisch zu wirken.', en: 'This makes the page feel alive again instead of short and purely technical.', tr: 'Bu, sayfanın sadece teknik değil tekrar canlı görünmesini sağlar.', pl: 'Dzięki temu strona znów wygląda żywo, a nie tylko technicznie.', nl: 'Zo voelt de pagina weer levendig in plaats van alleen technisch.', fr: 'Cela redonne de la vie à la page au lieu d’un simple aspect technique.' })} /><div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 18 }}><Card><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}><div style={{ fontSize: 22, fontWeight: 800 }}>{tx({ de: 'Neueste Anfragen', en: 'Latest requests', tr: 'Son talepler', pl: 'Najnowsze zlecenia', nl: 'Nieuwste aanvragen', fr: 'Dernières demandes' })}</div><Badge>{requests.length}</Badge></div><div style={{ display: 'grid', gap: 12 }}>{requests.slice(0, 3).map((req: TransportRequest) => <div key={req.id} style={{ border: '1px solid #e2e8f0', borderRadius: 18, padding: 16, background: '#fcfdff' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}><div><div style={{ fontWeight: 700, fontSize: 16 }}>{req.from} → {req.to}</div><div style={{ color: '#64748b', marginTop: 6 }}>{req.item}</div></div><div style={{ textAlign: 'right' }}><div style={{ fontWeight: 700 }}>{req.estimatedLow}–{req.estimatedHigh} €</div><div style={{ color: '#94a3b8', fontSize: 12 }}>{formatStatus(req.status, lang)}</div></div></div></div>)}{requests.length === 0 && <div style={{ color: '#64748b' }}>{tx({ de: 'Noch keine Anfragen vorhanden.', en: 'No requests yet.', tr: 'Henüz talep yok.', pl: 'Brak zleceń.', nl: 'Nog geen aanvragen.', fr: 'Aucune demande pour le moment.' })}</div>}</div></Card><Card><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}><div style={{ fontSize: 22, fontWeight: 800 }}>{tx({ de: 'Neueste freie Routen', en: 'Latest free routes', tr: 'Son boş rotalar', pl: 'Najnowsze wolne trasy', nl: 'Nieuwste vrije routes', fr: 'Derniers trajets libres' })}</div><Badge>{routes.length}</Badge></div><div style={{ display: 'grid', gap: 12 }}>{routes.slice(0, 3).map((route: FreeRoute) => <div key={route.id} style={{ border: '1px solid #e2e8f0', borderRadius: 18, padding: 16, background: '#fcfdff' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}><div><div style={{ fontWeight: 700, fontSize: 16 }}>{route.from} → {route.to}</div><div style={{ color: '#64748b', marginTop: 6 }}>{route.vehicleType}</div></div><div style={{ textAlign: 'right' }}><div style={{ fontWeight: 700 }}>{route.price}</div><div style={{ color: '#94a3b8', fontSize: 12 }}>{formatStatus(route.status, lang)}</div></div></div></div>)}{routes.length === 0 && <div style={{ color: '#64748b' }}>{tx({ de: 'Noch keine Routen vorhanden.', en: 'No routes yet.', tr: 'Henüz rota yok.', pl: 'Brak tras.', nl: 'Nog geen routes.', fr: 'Aucun trajet pour le moment.' })}</div>}</div></Card></div></section>
+<section style={{ marginBottom: 64 }}>
+  <SectionTitle
+    title={tx({
+      de: 'Live-Einträge auf der Plattform',
+      en: 'Live entries on the platform',
+      tr: 'Platformdaki canlı kayıtlar',
+      pl: 'Wpisy na żywo na platformie',
+      nl: 'Live items op het platform',
+      fr: 'Entrées en direct sur la plateforme'
+    })}
+    text={tx({
+      de: 'Hier sieht die Seite wieder lebendig aus, statt nur kurz und technisch zu wirken.',
+      en: 'This makes the page feel alive again instead of short and purely technical.',
+      tr: 'Bu, sayfanın sadece teknik değil tekrar canlı görünmesini sağlar.',
+      pl: 'Dzięki temu strona znów wygląda żywo, a nie tylko technicznie.',
+      nl: 'Zo voelt de pagina weer levendig in plaats van alleen technisch.',
+      fr: 'Cela redonne de la vie à la page au lieu d’un simple aspect technique.'
+    })}
+  />
 
+  <div style={{ marginBottom: 16 }}>
+    <Input
+      placeholder="Suche nach Stadt, Route oder Transportgut..."
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+    />
+  </div>
+
+  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 18 }}>
+    <Card>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <div style={{ fontSize: 22, fontWeight: 800 }}>
+          {tx({
+            de: 'Neueste Anfragen',
+            en: 'Latest requests',
+            tr: 'Son talepler',
+            pl: 'Najnowsze zlecenia',
+            nl: 'Nieuwste aanvragen',
+            fr: 'Dernières demandes'
+          })}
+        </div>
+        <Badge>{filteredRequests.length}</Badge>
+      </div>
+
+      <div style={{ display: 'grid', gap: 12 }}>
+        {filteredRequests.slice(0, 3).map((req: TransportRequest) => (
+          <div
+            key={req.id}
+            style={{
+              border: '1px solid #e2e8f0',
+              borderRadius: 18,
+              padding: 16,
+              background: '#fcfdff'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 16 }}>
+                  {req.from} → {req.to}
+                </div>
+                <div style={{ color: '#64748b', marginTop: 6 }}>
+                  {req.item}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 700 }}>
+                  {req.estimatedLow}–{req.estimatedHigh} €
+                </div>
+                <div style={{ color: '#94a3b8', fontSize: 12 }}>
+                  {formatStatus(req.status, lang)}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {filteredRequests.length === 0 && (
+          <div style={{ color: '#64748b' }}>
+            {tx({
+              de: 'Keine passenden Anfragen gefunden.',
+              en: 'No matching requests found.',
+              tr: 'Uygun talep bulunamadı.',
+              pl: 'Nie znaleziono pasujących zleceń.',
+              nl: 'Geen passende aanvragen gevonden.',
+              fr: 'Aucune demande correspondante trouvée.'
+            })}
+          </div>
+        )}
+      </div>
+    </Card>
+
+    <Card>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <div style={{ fontSize: 22, fontWeight: 800 }}>
+          {tx({
+            de: 'Neueste freie Routen',
+            en: 'Latest free routes',
+            tr: 'Son boş rotalar',
+            pl: 'Najnowsze wolne trasy',
+            nl: 'Nieuwste vrije routes',
+            fr: 'Derniers trajets libres'
+          })}
+        </div>
+        <Badge>{filteredRoutes.length}</Badge>
+      </div>
+
+      <div style={{ display: 'grid', gap: 12 }}>
+        {filteredRoutes.slice(0, 3).map((route: FreeRoute) => (
+          <div
+            key={route.id}
+            style={{
+              border: '1px solid #e2e8f0',
+              borderRadius: 18,
+              padding: 16,
+              background: '#fcfdff'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 16 }}>
+                  {route.from} → {route.to}
+                </div>
+                <div style={{ color: '#64748b', marginTop: 6 }}>
+                  {route.vehicleType}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 700 }}>
+                  {route.price}
+                </div>
+                <div style={{ color: '#94a3b8', fontSize: 12 }}>
+                  {formatStatus(route.status, lang)}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {filteredRoutes.length === 0 && (
+          <div style={{ color: '#64748b' }}>
+            {tx({
+              de: 'Keine passenden Routen gefunden.',
+              en: 'No matching routes found.',
+              tr: 'Uygun rota bulunamadı.',
+              pl: 'Nie znaleziono pasujących tras.',
+              nl: 'Geen passende routes gevonden.',
+              fr: 'Aucun trajet correspondant trouvé.'
+            })}
+          </div>
+        )}
+      </div>
+    </Card>
+  </div>
+</section>
             <section style={{ marginBottom: 72 }}><Card dark style={{ padding: isMobile ? 24 : 34, borderRadius: 30 }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row' }}><div style={{ maxWidth: 720 }}><div style={{ fontSize: isMobile ? 28 : 34, fontWeight: 800, lineHeight: 1.05 }}>{tx({ de: 'Bereit für die nächste Ausbaustufe', en: 'Ready for the next stage', tr: 'Bir sonraki aşamaya hazır', pl: 'Gotowe na kolejny etap', nl: 'Klaar voor de volgende stap', fr: 'Prêt pour la prochaine étape' })}</div><div style={{ color: '#cbd5e1', marginTop: 10, lineHeight: 1.8 }}>{tx({ de: 'Große Startseite ist zurück. Jetzt können wir Suche, Nutzertrennung und besseres Matching bauen.', en: 'The big homepage is back. Now we can build search, user separation and better matching.', tr: 'Büyük ana sayfa geri döndü. Şimdi arama, kullanıcı ayrımı ve daha iyi eşleştirme kurabiliriz.', pl: 'Duża strona główna wróciła. Teraz możemy budować wyszukiwanie, separację użytkowników i lepsze dopasowanie.', nl: 'De grote homepage is terug. Nu kunnen we zoeken, gebruikersscheiding en bessere matching bouwen.', fr: 'La grande page d’accueil est revenue. Nous pouvons maintenant construire la recherche, la séparation des utilisateurs et un meilleur matching.' })}</div></div><div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}><Btn onClick={() => setPage('register')}>{tx({ de: 'Registrieren', en: 'Register', tr: 'Kayıt ol', pl: 'Rejestracja', nl: 'Registreren', fr: 'Inscription' })}</Btn><Btn secondary onClick={() => setPage('dashboard')} style={{ background: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>{tx({ de: 'Zum Dashboard', en: 'To dashboard', tr: 'Panele git', pl: 'Do panelu', nl: 'Naar dashboard', fr: 'Vers le tableau de bord' })}</Btn></div></div></Card></section>
           </>
         )}
