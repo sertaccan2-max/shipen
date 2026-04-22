@@ -1,17 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import {
   Truck,
-  MapPin,
-  Package,
-  Building2,
-  User,
-  ShieldCheck,
-  Euro,
-  Route,
-  Search,
   CheckCircle2,
-  Star,
 } from 'lucide-react';
 
 const SUPABASE_URL = 'https://wetbridzfwmvyhqhfsqw.supabase.co';
@@ -348,7 +337,7 @@ export default function ShipenFullPreview() {
 
   const estimate = useMemo(() => estimatePrice(Number(requestForm.distance || 0), requestForm.size, requestForm.helpers), [requestForm]);
 
-  const createId = () => Math.random().toString(36).slice(2, 10);
+
 
   const getMatchesForRequest = (request: TransportRequest) => {
     const fromNeedle = request.from.trim().toLowerCase();
