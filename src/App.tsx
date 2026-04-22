@@ -1,7 +1,10 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import {
   Truck,
   CheckCircle2,
 } from 'lucide-react';
+
 
 const SUPABASE_URL = 'https://wetbridzfwmvyhqhfsqw.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_xgLp7zdiHpLzdutOwRrYYA_Q0R8Hftx';
